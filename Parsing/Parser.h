@@ -1,7 +1,7 @@
 #pragma once
 #include <set>
 #include <iostream>
-#include "Kind.h"
+#include "Token.h"
 #include "Node.h"
 
 using std::set;

@@ -1,9 +1,8 @@
 #pragma once
 #include <vector>
 #include <string>
-#include <Kind.h>
-#include <map>
 #include "Token.h"
+#include <map>
 /**
  * 참고 개념
  * - 구문 분석은 소스 코드의 구조(문과 식)를 분석하는 과정이다. 소스 코드의 구조는 '문'과 '식'으로 구성된다
@@ -31,28 +30,38 @@ struct Program {
  * 이후에 정의하는 노드들은 문이나 식에 따라 다음 노드 중 하나를 상속받음
 */
 // 모든 문 노드
-struct Statement {};
+struct Statement {
+  virtual auto print(int) -> void = 0;
+};
 // 식 노드의 부모 노드
-struct Expression {};
+struct Expression {
+  virtual auto print(int) -> void = 0;
+};
 
-// 함수의 정의를 표현하는 노드
-struct Function: Statement {
+
+// 문을 상속받는 노드들 (함수)
+struct Function : Statement
+{
+  // 함수 이름
   string name;
-  // 문자열의 동적 배열을 나타내고 parameters은 함수의 매개변수 이름을 저장함
+  // 함수의 파라미터들
   vector<string> parameters;
-  // Statement 포인터의 동적 배열을 나타냄.
-  vector<Statement*> black;
+  // 함수 본문 (문으로 이루어진 벡터)
+  vector<Statement *> block;
+  auto print(int) -> void;
 };
 
 // return 문을 표현하고 반환식을 멤버로 가지는 노드
 struct Return: Statement {
   Expression* expression;
+  auto print(int)->void;
 };
 
 // 변수의 선언을 표현하는 노드
 struct Variable: Statement { 
   string name;
   Expression* expression;
+  auto print(int)->void;
 };
 
 // for문을 표현하는 노드
@@ -65,21 +74,28 @@ struct For: Statement {
   Expression* expression;
   // 실행할 문 리스트
   vector<Statement*> block;
+  auto print(int)->void;
 };
 
-struct Break: Statement {};
-struct Continue: Statement {};
+struct Break: Statement {
+  auto print(int)->void;
+};
+struct Continue: Statement {
+  auto print(int)->void;
+};
 
 // if문을 표현하는 노드
 struct If: Statement {
   vector<Expression*> conditions;
   vector<vector<Statement*>> blocks;
   vector<Statement*> elseBlock;
+  auto print(int)->void;
 };
 
 struct Print: Statement {
   bool lineFeed = false;
   vector<Expression*> arguments;
+  auto print(int)->void;
 };
 
 // ---
@@ -90,6 +106,7 @@ struct Print: Statement {
 */
 struct ExpressionStatement: Statement {
   Expression* expression;
+  auto print(int)->void;
 };
 
 
@@ -103,12 +120,14 @@ struct ExpressionStatement: Statement {
 struct Or: Expression {
   Expression* lhs; // x
   Expression* rhs; // y
+  auto print(int)->void;
 };
 
 // And 연산자 &&
 struct And: Expression {
   Expression* lhs; 
   Expression* rhs;
+  auto print(int)->void;
 };
 
 // 관계 연산자
@@ -118,15 +137,17 @@ struct Relational : Expression
   Kind kind;      
   Expression *lhs; 
   Expression *rhs; 
+  auto print(int)->void;
 };
 
 // 산술 연산자
 // +, =, *, /, %
 struct Arithmetic : Expression
 {
-  Kind kind;       
-  Expression *lhs; 
-  Expression *rhs; 
+  Kind kind;       // +, -, *, /, %
+  Expression *lhs; // x
+  Expression *rhs; // y
+  auto print(int) -> void;
 };
 
 // ---
@@ -136,6 +157,7 @@ struct Arithmetic : Expression
 struct Unary: Expression {
   Kind kind;
   Expression* sub;
+  auto print(int)->void;
 };
 
 // 함수 호출식
@@ -143,13 +165,16 @@ struct Unary: Expression {
 struct Call: Expression {
   Expression* sub;
   vector<Expression*> arguments;  
+  auto print(int)->void;
 };
 
 // 참조식
 // array[0], object["key"]
-struct GetElement: Expression {
-  Kind kind;
-  Expression* sub;
+struct GetElement : Expression
+{
+  Expression *sub;   // array, object
+  Expression *index; // 0, "key"
+  auto print(int) -> void;
 };
 
 // 수정식
@@ -159,6 +184,7 @@ struct SetElement : Expression
   Expression *sub;   
   Expression *index; 
   Expression *value;
+  auto print(int)->void;
 };
 
 // 변수 참조식
@@ -173,6 +199,7 @@ struct GetVariable: Expression {
 struct SetVariable: Expression {
   string name;
   Expression* value;
+  auto print(int)->void;
 };
 
 // --- 
@@ -182,30 +209,38 @@ struct SetVariable: Expression {
  * */ 
 
 // null 리터럴
-struct NullLiteral: Expression {};
+struct NullLiteral: Expression {
+  auto print(int)->void;
+};
 
 // 불리언 리터럴
 struct BooleanLiteral: Expression {
   bool value = false;
+  auto print(int)->void;
 };
 
 // 숫자 리터럴
 struct NumberLiteral: Expression {
   double value = 0.0;
+  auto print(int)->void;
 };
 
 // 문자열 리터럴
 struct StringLiteral: Expression {
   string value;
+  auto print(int)->void;
 };
 
 // 배열 리터럴
-struct ArrayLiteral: Expression {
-  vector<Expression*> elements;
+struct ArrayLiteral : Expression {
+  vector<Expression *> values; 
+  auto print(int) -> void;
 };
 
 // 맵 리터럴
 // {'a', 1, 'b', 2}
-struct MapLiteral: Expression {
-  map<string, Expression*> values;
+struct MapLiteral : Expression
+{
+  map<string, Expression *> values; // x: 10, y: 20
+  auto print(int) -> void;
 };
