@@ -44,6 +44,7 @@ static map<string, Function*> functionTable;
 struct ReturnException { any result; };
 struct BreakException {};
 struct ContinueException {};
+extern map<string, function<any(vector<any>)>> builtinFunctionTable;
 
 
 auto interpret(Program* program)-> void {
@@ -74,17 +75,26 @@ auto interpret(Program* program)-> void {
     */
     // 'main' 함수 실행
     functionTable["main"]->interpret();
-  } catch(ReturnException e){
-    // 함수 실행 후 지역 변수 스코프 제거
-    local.pop_back();
-  };
-}
+  } 
+  catch (ReturnException) {}
+  catch (BreakException) {}
+  catch (ContinueException) {}
+  local.pop_back();
+};
+
 
 // --- 함수 노드
 // 단순 본문 노드 순회하며 interpret() 함수 호출
 auto Function::interpret()->void {
   for (auto& node: block)
     node->interpret();
+}
+
+// --- return 문 노드
+auto Return::interpret()->void {
+  // 반환 식 노드를 순회한 결과값을 예외 객체로 생성
+  // 사용하려면 try-catch 문으로 감싸야 함
+  throw ReturnException{expression->interpret()};
 }
 
 // --- 변수 노드
@@ -120,8 +130,9 @@ auto GetVariable::interpret()->any {
   // 같은 이름으로 등록된 함수 노드가 있다면 해당 함수 노드를 반환
   if (functionTable.count(name))
     return functionTable[name];
-  // if (builtinFunctionTable.count(name))
-  // return builtinFunctionTable[name];
+  // 내장 함수를 처리하는데 사용되는 데이터 구조
+  if (builtinFunctionTable.count(name))
+  return builtinFunctionTable[name];
   // 지역, 전역 변수에 없다면 null을 반환한다
   return nullptr;
 };
@@ -283,13 +294,6 @@ auto Call::interpret()->any {
   // 함수 실행 후 지역 스코프 제거
   local.pop_back();
   return nullptr;
-}
-
-// --- return 문 노드
-auto Return::interpret()->void {
-  // 반환 식 노드를 순회한 결과값을 예외 객체로 생성
-  // 사용하려면 try-catch 문으로 감싸야 함
-  throw ReturnException{expression->interpret()};
 }
 
 
