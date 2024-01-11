@@ -1,17 +1,17 @@
 #include "Main.h"
 
-auto main(int argc, char** argv)->int {  
-  string sourceCode = R""""(
-    function main() {
-      print 'Hello, World!';
-    }
-  )"""";
-  auto tokenList = scan(sourceCode);
-  auto syntaxTree = parse(tokenList);
-  // 싪행 결과를 출력하는 인터프리터 정의
-  interpret(syntaxTree);
-  return 0; // 책에 없는 내용
-}
+// auto main(int argc, char** argv)->int {  
+//   string sourceCode = R""""(
+//     function main() {
+//       print 'Hello, World!';
+//     }
+//   )"""";
+//   auto tokenList = scan(sourceCode);
+//   auto syntaxTree = parse(tokenList);
+//   // 싪행 결과를 출력하는 인터프리터 정의
+//   interpret(syntaxTree);
+//   return 0; // 책에 없는 내용
+// }
 
 // ?NOTE: 산술 연산 테스트용 예제
 // auto main(int argc, char** argv) -> int {
@@ -128,22 +128,22 @@ auto main(int argc, char** argv)->int {
 // }
 
 // ?NOTE: 함수 호출문 테스트용 예제
-// auto main(int argc, char** argv) -> int {
-// string sourceCode = R""""(
-//     function main() {
-//       print getC(3, 4);
-//     }
+auto main(int argc, char** argv) -> int {
+string sourceCode = R""""(
+    function main() {
+      print getC(3, 4);
+    }
 
-//     function getC(a, b) {
-//       return a * a + b * b;
-//     }
-//   )"""";
-//   auto tokenList = scan(sourceCode);
-//   auto syntaxTree = parse(tokenList);
-//   interpret(syntaxTree);
+    function getC(a, b) {
+      return a * a + b * b;
+    }
+  )"""";
+  auto tokenList = scan(sourceCode);
+  auto syntaxTree = parse(tokenList);
+  interpret(syntaxTree);
 
-//   return 0; 
-// }
+  return 0; 
+}
 
 // ?NOTE: 배열 테스트용 예제
 // auto main(int argc, char** argv) -> int {
