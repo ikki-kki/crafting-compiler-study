@@ -59,6 +59,7 @@
     "any": "cpp",
     "functional": "cpp",
     "list": "cpp",
-    "set": "cpp"
+    "set": "cpp",
+    "fstream": "cpp"
   }
 }
